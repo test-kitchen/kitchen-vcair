@@ -1,0 +1,26 @@
+---
+driver_config:
+  vcair_username: <%= ENV['VCAIR_USERNAMEX'] %>
+  vcair_password: <%= ENV['VCAIR_PASSWORDX'] %>
+  vcair_api_host: <%= ENV['VCAIR_API_HOSTX'] %>
+  vcair_org: <%= ENV['VCAIR_ORGX'] %>
+
+provisioner:
+  name: chef_zero
+  require_chef_omnibus: latest
+
+platforms:
+- name: centos-6.4
+  driver_plugin: vcair
+  driver_config:
+    size: 2gb
+    image: centos-6-4-x64
+    vcair_ssh_password: <%= ENV['VCAIR_SSH_PASSWORDX'] %>
+
+suites:
+  #
+  # hello_world_test
+  #
+  - name: hello_world_test
+    run_list:
+    - recipe[hello_world_test]

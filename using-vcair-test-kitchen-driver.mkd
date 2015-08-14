@@ -1,0 +1,92 @@
+# Using kitchen-vcair with the httpd (Apache) cookbook
+
+These steps assume you have chef installed on your workstation
+and access to a vClour Air environment.
+
+## Grab the kitchen-vcair gem
+
+Install the gem from source:
+
+```
+git clone git@github.com:vulk/kitchen-vcair.git
+```
+
+or whatever your favorite method is.
+
+## Build and install the gem if you grabbed from source/git
+
+Build it:
+```
+cd kitchen-vcair
+gem build kitchen-vcair.gemspec
+```
+
+Install it... eg.
+
+```
+gem install ./kitchen-vcair-0.1.0.gem
+```
+
+## Grab the the Apache (httpd) cookbook
+
+Install using your favorite method. Eg. with git:
+
+```
+git clone git@github.com:chef-cookbooks/httpd.git
+```
+
+## Create a test kitchen configuration file
+
+Go into the cookbook and create a `.kitchen.vcair.yml`.
+Example:
+
+```
+---
+driver_config:
+  vcair_username: <%= ENV['VCAIR_USERNAMEX'] %>
+  vcair_password: <%= ENV['VCAIR_PASSWORDX'] %>
+  vcair_api_host: <%= ENV['VCAIR_API_HOSTX'] %>
+  vcair_org: <%= ENV['VCAIR_ORGX'] %>
+
+provisioner:
+  name: chef_zero
+  require_chef_omnibus: latest
+
+platforms:
+- name: centos-6.4
+  driver_plugin: vcair
+  driver_config:
+    size: 2gb
+    image: centos-6-4-x64
+    vcair_ssh_password: <%= ENV['VCAIR_SSH_PASSWORDX'] %>
+
+suites:
+  #
+  # hello_world_test
+  #
+  - name: hello_world_test
+    run_list:
+    - recipe[hello_world_test]
+```
+
+## Create and load an environment configuration file
+
+Add vCloud Air configuration to environment.  eg.:
+
+```
+export VCAIR_API_HOST='pNvNN-vcd.vchs.vmware.com'
+export VCAIR_SSH_PASSWORD='RANDOM_PASSWORD_HERE'
+
+export VCAIR_ORG='MNNNNNNNNN-NNN'
+
+export VCAIR_USERNAME='your@example.com'
+export VCAIR_PASSWORD='YOUR_VCAIR_PASSWORD'
+```
+
+## Run test-kitchen using the configuration created previously
+
+Go into the httpd cookbook directory and run
+
+```
+KITCHEN_YAML=".kitchen.vcair.yml" kitchen test
+```
