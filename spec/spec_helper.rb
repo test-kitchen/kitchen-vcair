@@ -1,7 +1,5 @@
 # Encoding: UTF-8
 #
-# Authors:: Chris McClimans (<c@vulk.co>)
-# Authors:: Taylor Carpenter (<t@vulk.co>)
 # Authors:: Chef Partner Engineering (<partnereng@chef.io>)
 # Copyright:: Copyright (c) 2015 Chef Software, Inc.
 # License:: Apache License, Version 2.0
@@ -17,9 +15,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-module Kitchen
-  module Driver
-    VCAIR_VERSION = '1.0.0'
-  end
-end

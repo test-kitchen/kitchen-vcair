@@ -7,12 +7,12 @@ require 'kitchen/driver/vcair_version'
 Gem::Specification.new do |spec|
   spec.name          = 'kitchen-vcair'
   spec.version       = Kitchen::Driver::VCAIR_VERSION
-  spec.authors       = ['Taylor Carpenter', 'Chris McClimans']
-  spec.email         = %w(wolfpack+c+t@vulk.co)
+  spec.authors       = ['Chef Partner Engineering', 'Taylor Carpenter', 'Chris McClimans']
+  spec.email         = %w(partnereng@chef.io wolfpack+c+t@vulk.co)
   spec.description   = 'A Test Kitchen vCloud Air driver'
   spec.summary       = 'A Test Kitchen vCloud Air driver built on Fog'
-  spec.homepage      = 'https://github.com/vulk/kitchen-vcair'
-  spec.license       = 'Apache'
+  spec.homepage      = 'https://github.com/chef-partners/kitchen-vcair'
+  spec.license       = 'Apache 2.0'
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
@@ -21,17 +21,12 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 1.9.3'
 
-  spec.add_dependency 'test-kitchen', '~> 1.1'
-  spec.add_dependency 'pester'
-  spec.add_dependency 'fog', '~> 1.18'
+  spec.add_dependency 'test-kitchen', '~> 1.4', '>= 1.4.1'
+  spec.add_dependency 'fog',          '~> 1.33'
 
-  spec.add_development_dependency 'bundler', '~> 1.0'
-  spec.add_development_dependency 'rake', '~> 10.0'
-  spec.add_development_dependency 'rubocop', '~> 0.29'
-  spec.add_development_dependency 'cane', '~> 2.6'
-  spec.add_development_dependency 'countloc', '~> 0.4'
-  spec.add_development_dependency 'rspec', '~> 3.0'
-  spec.add_development_dependency 'simplecov', '~> 0.9'
-  spec.add_development_dependency 'simplecov-console', '~> 0.2'
-  spec.add_development_dependency 'coveralls', '~> 0.8'
+  spec.add_development_dependency 'bundler',   '~> 1.7'
+  spec.add_development_dependency 'rake',      '~> 10.0'
+  spec.add_development_dependency 'rspec',     '~> 3.2'
+  spec.add_development_dependency 'rubocop',   '~> 0.33'
+  spec.add_development_dependency 'pry',       '~> 0.10'
 end
