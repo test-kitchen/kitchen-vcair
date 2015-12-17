@@ -191,35 +191,47 @@ module Kitchen
       end
 
       def image
-        if config[:image_id]
-          catalog.catalog_items.get(config[:image_id])
-        else
-          catalog.catalog_items.get_by_name(config[:image_name])
-        end
+        image = if config[:image_id]
+                  catalog.catalog_items.get(config[:image_id])
+                else
+                  catalog.catalog_items.get_by_name(config[:image_name])
+                end
+
+        raise 'Unable to find image - check your image_id or image_name' if image.nil?
+        image
       end
 
       def catalog
-        if config[:catalog_id]
-          org.catalogs.get(config[:catalog_id])
-        else
-          org.catalogs.get_by_name(config[:catalog_name])
-        end
+        catalog = if config[:catalog_id]
+                    org.catalogs.get(config[:catalog_id])
+                  else
+                    org.catalogs.get_by_name(config[:catalog_name])
+                  end
+
+        raise 'Unable to find catalog - check your catalog_id or catalog_name' if catalog.nil?
+        catalog
       end
 
       def vdc
-        if config[:vdc_id]
-          org.vdcs.get(config[:vdc_id])
-        else
-          org.vdcs.get_by_name(config[:vdc_name])
-        end
+        vdc = if config[:vdc_id]
+                org.vdcs.get(config[:vdc_id])
+              else
+                org.vdcs.get_by_name(config[:vdc_name])
+              end
+
+        raise 'Unable to find VDC - check your vdc_id or vdc_name' if vdc.nil?
+        vdc
       end
 
       def network
-        if config[:network_id]
-          org.networks.get(config[:network_id])
-        else
-          org.networks.get_by_name(config[:network_name])
-        end
+        network = if config[:network_id]
+                    org.networks.get(config[:network_id])
+                  else
+                    org.networks.get_by_name(config[:network_name])
+                  end
+
+        raise 'Unable to find network - check your network_id or network_name' if network.nil?
+        network
       end
 
       def node_description
