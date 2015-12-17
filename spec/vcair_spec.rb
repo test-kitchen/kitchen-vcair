@@ -313,6 +313,7 @@ describe Kitchen::Driver::Vcair do
   describe '#image' do
     let(:catalog)       { double('catalog') }
     let(:catalog_items) { double('catalog_items') }
+    let(:image)         { double('image') }
 
     before do
       allow(driver).to receive(:catalog).and_return(catalog)
@@ -326,8 +327,8 @@ describe Kitchen::Driver::Vcair do
       end
 
       it 'fetches the catalog item by ID' do
-        expect(catalog_items).to receive(:get).with(1)
-        driver.image
+        expect(catalog_items).to receive(:get).with(1).and_return(image)
+        expect(driver.image).to eq(image)
       end
     end
 
@@ -338,8 +339,20 @@ describe Kitchen::Driver::Vcair do
       end
 
       it 'fetches the catalog item by name' do
-        expect(catalog_items).to receive(:get_by_name).with('image name')
-        driver.image
+        expect(catalog_items).to receive(:get_by_name).with('image name').and_return(image)
+        expect(driver.image).to eq(image)
+      end
+    end
+
+    context 'when no image is returned' do
+      before do
+        config[:image_id] = 1
+        config[:image_name] = nil
+      end
+
+      it 'raises an exception' do
+        expect(catalog_items).to receive(:get).with(1).and_return(nil)
+        expect { driver.image }.to raise_error(RuntimeError)
       end
     end
   end
@@ -347,6 +360,7 @@ describe Kitchen::Driver::Vcair do
   describe '#catalog' do
     let(:org)      { double('org') }
     let(:catalogs) { double('catalogs') }
+    let(:catalog)  { double('catalog') }
 
     before do
       allow(driver).to receive(:org).and_return(org)
@@ -360,8 +374,8 @@ describe Kitchen::Driver::Vcair do
       end
 
       it 'fetches the catalog by ID' do
-        expect(catalogs).to receive(:get).with(1)
-        driver.catalog
+        expect(catalogs).to receive(:get).with(1).and_return(catalog)
+        expect(driver.catalog).to eq(catalog)
       end
     end
 
@@ -372,8 +386,20 @@ describe Kitchen::Driver::Vcair do
       end
 
       it 'fetches the catalog by name' do
-        expect(catalogs).to receive(:get_by_name).with('catalog name')
-        driver.catalog
+        expect(catalogs).to receive(:get_by_name).with('catalog name').and_return(catalog)
+        expect(driver.catalog).to eq(catalog)
+      end
+    end
+
+    context 'when no catalog is returned' do
+      before do
+        config[:catalog_id] = 1
+        config[:catalog_name] = nil
+      end
+
+      it 'raises an exception' do
+        expect(catalogs).to receive(:get).with(1).and_return(nil)
+        expect { driver.catalog }.to raise_error(RuntimeError)
       end
     end
   end
@@ -381,6 +407,7 @@ describe Kitchen::Driver::Vcair do
   describe '#vdc' do
     let(:org)  { double('org') }
     let(:vdcs) { double('vdcs') }
+    let(:vdc)  { double('vdc') }
 
     before do
       allow(driver).to receive(:org).and_return(org)
@@ -394,8 +421,8 @@ describe Kitchen::Driver::Vcair do
       end
 
       it 'fetches the vdc by ID' do
-        expect(vdcs).to receive(:get).with(1)
-        driver.vdc
+        expect(vdcs).to receive(:get).with(1).and_return(vdc)
+        expect(driver.vdc).to eq(vdc)
       end
     end
 
@@ -406,8 +433,20 @@ describe Kitchen::Driver::Vcair do
       end
 
       it 'fetches the vdc by name' do
-        expect(vdcs).to receive(:get_by_name).with('vdc name')
-        driver.vdc
+        expect(vdcs).to receive(:get_by_name).with('vdc name').and_return(vdc)
+        expect(driver.vdc).to eq(vdc)
+      end
+    end
+
+    context 'when no vdc is returned' do
+      before do
+        config[:vdc_id] = 1
+        config[:vdc_name] = nil
+      end
+
+      it 'raises an exception' do
+        expect(vdcs).to receive(:get).with(1).and_return(nil)
+        expect { driver.vdc }.to raise_error(RuntimeError)
       end
     end
   end
@@ -415,6 +454,7 @@ describe Kitchen::Driver::Vcair do
   describe '#network' do
     let(:org)      { double('org') }
     let(:networks) { double('networks') }
+    let(:network)  { double('network') }
 
     before do
       allow(driver).to receive(:org).and_return(org)
@@ -428,8 +468,8 @@ describe Kitchen::Driver::Vcair do
       end
 
       it 'fetches the network by ID' do
-        expect(networks).to receive(:get).with(1)
-        driver.network
+        expect(networks).to receive(:get).with(1).and_return(network)
+        expect(driver.network).to eq(network)
       end
     end
 
@@ -440,8 +480,20 @@ describe Kitchen::Driver::Vcair do
       end
 
       it 'fetches the network by name' do
-        expect(networks).to receive(:get_by_name).with('network name')
-        driver.network
+        expect(networks).to receive(:get_by_name).with('network name').and_return(network)
+        expect(driver.network).to eq(network)
+      end
+    end
+
+    context 'when no network is returned' do
+      before do
+        config[:network_id] = 1
+        config[:network_name] = nil
+      end
+
+      it 'raises an exception' do
+        expect(networks).to receive(:get).with(1).and_return(nil)
+        expect { driver.network }.to raise_error(RuntimeError)
       end
     end
   end
