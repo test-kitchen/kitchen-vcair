@@ -347,14 +347,14 @@ module Kitchen
       end
 
       def set_customization_password
+        customization.reset_password_required = false
+
         if config[:vm_password]
           customization.admin_password          = config[:vm_password]
           customization.admin_password_auto     = false
-          customization.reset_password_required = false
         else
           customization.admin_password          = nil
           customization.admin_password_auto     = true
-          customization.reset_password_required = false
         end
       end
 
