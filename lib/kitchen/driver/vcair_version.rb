@@ -20,6 +20,6 @@
 
 module Kitchen
   module Driver
-    VCAIR_VERSION = '1.1.0'
+    VCAIR_VERSION = '1.1.0'.freeze
   end
 end
