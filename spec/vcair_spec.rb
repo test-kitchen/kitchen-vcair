@@ -52,7 +52,7 @@ describe Kitchen::Driver::Vcair do
                     transport: transport,
                     platform:  platform,
                     to_str:    'instance_str'
-    )
+                   )
   end
 
   before do
