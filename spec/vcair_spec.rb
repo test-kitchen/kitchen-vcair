@@ -51,8 +51,7 @@ describe Kitchen::Driver::Vcair do
                     logger:    logger,
                     transport: transport,
                     platform:  platform,
-                    to_str:    'instance_str'
-                   )
+                    to_str:    'instance_str')
   end
 
   before do
