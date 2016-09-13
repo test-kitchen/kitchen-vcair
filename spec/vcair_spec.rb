@@ -699,7 +699,7 @@ describe Kitchen::Driver::Vcair do
 
     it 'calls instantiate on the image' do
       allow(driver).to receive(:image).and_return(image)
-      allow(driver).to receive(:node_name).and_return('node')
+      allow(driver).to receive(:vmapp_name).and_return('node')
       allow(driver).to receive(:instantiate_config).and_return('config')
       expect(image).to receive(:instantiate).with('node', 'config')
 
