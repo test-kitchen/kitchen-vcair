@@ -1,4 +1,3 @@
-# Encoding: UTF-8
 #
 # Authors:: Chris McClimans (<c@vulk.co>)
 # Authors:: Taylor Carpenter (<t@vulk.co>)
@@ -168,25 +167,25 @@ module Kitchen
 
       def wait_for_server(state)
         instance.transport.connection(state).wait_until_ready
-      rescue
+      rescue StandardError
         error("Server #{vapp.id} (#{vm.name}) not reachable. Destroying server...")
         destroy(state)
         raise
       end
 
       def vcloud_username
-        [ config[:vcair_username], config[:vcair_org] ].join('@')
+        [config[:vcair_username], config[:vcair_org]].join('@')
       end
 
       def fog_server_def
         {
           provider: 'vclouddirector',
-          vcloud_director_username:      vcloud_username,
-          vcloud_director_password:      config[:vcair_password],
-          vcloud_director_host:          config[:vcair_api_host],
-          vcloud_director_api_version:   config[:vcair_api_version],
+          vcloud_director_username: vcloud_username,
+          vcloud_director_password: config[:vcair_password],
+          vcloud_director_host: config[:vcair_api_host],
+          vcloud_director_api_version: config[:vcair_api_version],
           vcloud_director_show_progress: false,
-          path:                          config[:vcair_api_path]
+          path: config[:vcair_api_path]
         }
       end
 
@@ -198,6 +197,7 @@ module Kitchen
                 end
 
         raise 'Unable to find image - check your image_id or image_name' if image.nil?
+
         image
       end
 
@@ -209,6 +209,7 @@ module Kitchen
                   end
 
         raise 'Unable to find catalog - check your catalog_id or catalog_name' if catalog.nil?
+
         catalog
       end
 
@@ -220,6 +221,7 @@ module Kitchen
               end
 
         raise 'Unable to find VDC - check your vdc_id or vdc_name' if vdc.nil?
+
         vdc
       end
 
@@ -231,6 +233,7 @@ module Kitchen
                   end
 
         raise 'Unable to find network - check your network_id or network_name' if network.nil?
+
         network
       end
 
@@ -264,11 +267,11 @@ module Kitchen
       end
 
       def validate!
-        %w(vdc catalog image network).each do |param|
+        %w[vdc catalog image network].each do |param|
           validate_parameter_pair!(param)
         end
 
-        [ :org, :vdc, :catalog, :image, :network].each do |method|
+        %i[org vdc catalog image network].each do |method|
           validate_method!(method)
         end
 
@@ -286,7 +289,7 @@ module Kitchen
 
       def validate_method!(method)
         send(method)
-      rescue => e
+      rescue StandardError => e
         raise "Unable to validate #{method} - check your configuration and try again. #{e.class} -- #{e.message}"
       end
 

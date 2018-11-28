@@ -1,4 +1,3 @@
-# Encoding: UTF-8
 #
 # Authors:: Chef Partner Engineering (<partnereng@chef.io>)
 # Copyright:: Copyright (c) 2015 Chef Software, Inc.
@@ -36,23 +35,22 @@ describe Kitchen::Driver::Vcair do
       vcair_password: 'mypassword',
       vcair_api_host: 'https://vcloud.air',
       vcair_api_path: '/api/compute/api',
-      vcair_org:      'myorg',
-      cpus:           2,
-      memory:         2048,
-      vdc_id:         1,
-      catalog_id:     2,
-      image_id:       3,
-      network_id:     4
+      vcair_org: 'myorg',
+      cpus: 2,
+      memory: 2048,
+      vdc_id: 1,
+      catalog_id: 2,
+      image_id: 3,
+      network_id: 4
     }
   end
 
   let(:instance) do
     instance_double(Kitchen::Instance,
-                    logger:    logger,
+                    logger: logger,
                     transport: transport,
-                    platform:  platform,
-                    to_str:    'instance_str'
-                   )
+                    platform: platform,
+                    to_str: 'instance_str')
   end
 
   before do
@@ -723,7 +721,7 @@ describe Kitchen::Driver::Vcair do
 
   describe '#vm' do
     let(:vapp) { double('vapp') }
-    let(:vms)  { %w(vm1 vm2) }
+    let(:vms)  { %w[vm1 vm2] }
 
     it 'returns the first VM from the array' do
       allow(driver).to receive(:vapp).and_return(vapp)
