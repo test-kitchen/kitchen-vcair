@@ -1,3 +1,4 @@
+# Encoding: UTF-8
 #
 # Authors:: Chef Partner Engineering (<partnereng@chef.io>)
 # Copyright:: Copyright (c) 2015 Chef Software, Inc.

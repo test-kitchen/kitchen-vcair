@@ -1,3 +1,4 @@
+# Encoding: UTF-8
 #
 # Authors:: Chris McClimans (<c@vulk.co>)
 # Authors:: Taylor Carpenter (<t@vulk.co>)
