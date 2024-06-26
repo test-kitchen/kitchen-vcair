@@ -12,15 +12,15 @@ gem 'kitchen-vcair'
 
 And then execute:
 
-    $ bundle
+`bundle`
 
 Or install it yourself as:
 
-    $ gem install kitchen-vcair
+`gem install kitchen-vcair`
 
 Or even better, install it via ChefDK:
 
-    $ chef gem install kitchen-vcair
+`chef gem install kitchen-vcair`
 
 ## Usage
 
@@ -168,9 +168,7 @@ License:: Apache License, Version 2.0
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this file except in compliance with the License. You may obtain a copy of the License at
 
-```
-http://www.apache.org/licenses/LICENSE-2.0
-```
+<http://www.apache.org/licenses/LICENSE-2.0>
 
 Unless required by applicable law or agreed to in writing, software distributed under the
 License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -181,7 +179,7 @@ and limitations under the License.
 
 We'd love to hear from you if this doesn't perform in the manner you expect. Please log a GitHub issue, or even better, submit a Pull Request with a fix!
 
-1. Fork it ( https://github.com/chef-partners/kitchen-vcair/fork )
+1. Fork it (<https://github.com/chef-partners/kitchen-vcair/fork>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
