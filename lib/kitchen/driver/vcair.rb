@@ -17,7 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require "fog"
+require "fog/vmfusion"
 require "kitchen"
 require "securerandom" unless defined?(SecureRandom)
 
