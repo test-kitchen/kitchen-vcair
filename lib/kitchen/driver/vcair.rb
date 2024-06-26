@@ -242,6 +242,10 @@ module Kitchen
         config[:node_name] || generate_node_name
       end
 
+      def vmapp_name
+        config[:vmapp_name] || generate_node_name
+      end
+
       def generate_node_name
         # SecureRandom.hex generates a string 2x the argument.
         # We need the name to be 15 chars or less to play nicely
@@ -305,7 +309,7 @@ module Kitchen
       end
 
       def instantiate
-        image.instantiate(node_name, instantiate_config)
+        image.instantiate(vmapp_name, instantiate_config)
       end
 
       def vapp

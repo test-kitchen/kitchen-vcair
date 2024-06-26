@@ -67,10 +67,14 @@ platforms:
   - name: centos
     driver:
       catalog_name: Public Catalog
+      node_name: Linux-hostname
+      vmapp_name: VMapp-Linux
       image_name: CentOS64-64BIT
   - name: windows
     driver:
       catalog_name: Public Catalog
+      node_name: Windows-hostname
+      vmapp_name: VMapp-Windows
       image_name: W2K12-STD-R2-64BIT
       cpus: 2
       memory: 4096
