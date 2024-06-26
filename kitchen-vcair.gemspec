@@ -19,13 +19,13 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = %w(lib)
 
-  spec.required_ruby_version = '>= 2.0.0'
+  spec.required_ruby_version = '>= 2.7'
 
-  spec.add_dependency 'test-kitchen', '~> 1.4', '>= 1.4.1'
-  spec.add_dependency 'fog',          '~> 1.33'
+  spec.add_dependency 'test-kitchen', ">= 1.1", "< 4.0"
+  spec.add_dependency 'fog'
 
-  spec.add_development_dependency 'rake',      '~> 10.0'
-  spec.add_development_dependency 'rspec',     '~> 3.2'
-  spec.add_development_dependency 'rubocop',   '~> 0.49'
-  spec.add_development_dependency 'pry',       '~> 0.10'
+  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'rubocop'
+  spec.add_development_dependency 'pry'
 end

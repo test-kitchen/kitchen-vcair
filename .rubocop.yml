@@ -1,14 +1,11 @@
-Metrics/AbcSize:
-  Max: 50
-Metrics/ClassLength:
-  Max: 300
-Metrics/LineLength:
-  Max: 130
-Metrics/MethodLength:
-  Max: 25
-Style/Documentation:
-  Enabled: false
-Style/SignalException:
-  Enabled: false
-Style/SpaceInsideBrackets:
-  Enabled: false
+---
+require:
+  - chefstyle
+
+AllCops:
+  TargetRubyVersion: 3.1
+  Include:
+    - "**/*.rb"
+  Exclude:
+    - "vendor/**/*"
+    - "spec/**/*"
