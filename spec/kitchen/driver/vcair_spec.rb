@@ -16,12 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'spec_helper'
-require 'excon'
-require 'kitchen/driver/vcair'
-require 'kitchen/provisioner/dummy'
-require 'kitchen/transport/dummy'
-require 'kitchen/verifier/dummy'
+require_relative "../../spec_helper"
 
 describe Kitchen::Driver::Vcair do
   let(:logged_output) { StringIO.new }
