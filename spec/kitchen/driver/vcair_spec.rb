@@ -17,6 +17,11 @@
 # limitations under the License.
 
 require_relative "../../spec_helper"
+require 'excon'
+require 'kitchen/driver/vcair'
+require 'kitchen/provisioner/dummy'
+require 'kitchen/transport/dummy'
+require 'kitchen/verifier/dummy'
 
 describe Kitchen::Driver::Vcair do
   let(:logged_output) { StringIO.new }
