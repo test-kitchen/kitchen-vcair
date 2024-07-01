@@ -1,4 +1,17 @@
-# kitchen-vcair Changelog
+# Changelog
+
+## [2.0.0](https://github.com/test-kitchen/kitchen-vcair/compare/v1.1.0...v2.0.0) (2024-07-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* add support for ruby 3.x ([#9](https://github.com/test-kitchen/kitchen-vcair/issues/9))
+
+### Features
+
+* add support for ruby 3.x ([#9](https://github.com/test-kitchen/kitchen-vcair/issues/9)) ([eca1fce](https://github.com/test-kitchen/kitchen-vcair/commit/eca1fcebc871373b370af838af4dfc548136e2bb))
+
+## kitchen-vcair Changelog
 
 ## Release: 1.1.0 / 2015-12-17
 
