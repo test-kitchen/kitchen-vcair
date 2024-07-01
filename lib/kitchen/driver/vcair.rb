@@ -1,4 +1,3 @@
-# Encoding: UTF-8
 #
 # Authors:: Chris McClimans (<c@vulk.co>)
 # Authors:: Taylor Carpenter (<t@vulk.co>)
@@ -18,9 +17,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'fog'
-require 'kitchen'
-require 'securerandom'
+require "fog"
+require "kitchen"
+require "securerandom" unless defined?(SecureRandom)
 
 module Kitchen
   module Driver
@@ -28,7 +27,7 @@ module Kitchen
       attr_accessor :vapp_id
 
       default_config :wait_for, 600
-      default_config :vcair_api_path, '/api'
+      default_config :vcair_api_path, "/api"
       default_config :catalog_id, nil
       default_config :catalog_name, nil
       default_config :image_id, nil
@@ -52,7 +51,7 @@ module Kitchen
       end
 
       def name
-        'vCloudAir'
+        "vCloudAir"
       end
 
       def create(state)
@@ -83,13 +82,13 @@ module Kitchen
           return
         end
 
-        info('Powering off the vApp...')
+        info("Powering off the vApp...")
         vapp.power_off
 
-        info('Undeploying the vApp...')
+        info("Undeploying the vApp...")
         vapp.undeploy
 
-        info('Deleting the vApp...')
+        info("Deleting the vApp...")
         vapp.destroy
 
         info("vApp <#{state[:vapp_id]}> destroyed.")
@@ -111,25 +110,25 @@ module Kitchen
 
         info("vApp ID #{vapp_id} created.")
 
-        info('Validating the vApp...')
+        info("Validating the vApp...")
         unless validate_vapp
           destroy(state)
           return
         end
 
-        info('Updating the VM customization...')
+        info("Updating the VM customization...")
         update_customization
 
-        info('Adjusting VM hardware...')
+        info("Adjusting VM hardware...")
         adjust_hardware
 
-        info('Attaching it to the network...')
+        info("Attaching it to the network...")
         attach_network
 
-        info('Tagging the VM...')
+        info("Tagging the VM...")
         tag_vm
 
-        info('Powering on the VM...')
+        info("Powering on the VM...")
         power_on
       end
 
@@ -147,9 +146,9 @@ module Kitchen
               needsCustomization: true,
               NetworkConnectionIndex: 0,
               IsConnected: true,
-              IpAddressAllocationMode: 'POOL'
-            }
-          ]
+              IpAddressAllocationMode: "POOL",
+            },
+          ],
         }
       end
 
@@ -159,7 +158,7 @@ module Kitchen
       end
 
       def tag_vm
-        vm.tags.create('created-by', 'test-kitchen')
+        vm.tags.create("created-by", "test-kitchen")
       end
 
       def power_on
@@ -175,18 +174,18 @@ module Kitchen
       end
 
       def vcloud_username
-        [ config[:vcair_username], config[:vcair_org] ].join('@')
+        [ config[:vcair_username], config[:vcair_org] ].join("@")
       end
 
       def fog_server_def
         {
-          provider: 'vclouddirector',
+          provider: "vclouddirector",
           vcloud_director_username:      vcloud_username,
           vcloud_director_password:      config[:vcair_password],
           vcloud_director_host:          config[:vcair_api_host],
           vcloud_director_api_version:   config[:vcair_api_version],
           vcloud_director_show_progress: false,
-          path:                          config[:vcair_api_path]
+          path:                          config[:vcair_api_path],
         }
       end
 
@@ -197,7 +196,8 @@ module Kitchen
                   catalog.catalog_items.get_by_name(config[:image_name])
                 end
 
-        raise 'Unable to find image - check your image_id or image_name' if image.nil?
+        raise "Unable to find image - check your image_id or image_name" if image.nil?
+
         image
       end
 
@@ -208,7 +208,8 @@ module Kitchen
                     org.catalogs.get_by_name(config[:catalog_name])
                   end
 
-        raise 'Unable to find catalog - check your catalog_id or catalog_name' if catalog.nil?
+        raise "Unable to find catalog - check your catalog_id or catalog_name" if catalog.nil?
+
         catalog
       end
 
@@ -219,7 +220,8 @@ module Kitchen
                 org.vdcs.get_by_name(config[:vdc_name])
               end
 
-        raise 'Unable to find VDC - check your vdc_id or vdc_name' if vdc.nil?
+        raise "Unable to find VDC - check your vdc_id or vdc_name" if vdc.nil?
+
         vdc
       end
 
@@ -230,7 +232,8 @@ module Kitchen
                     org.networks.get_by_name(config[:network_name])
                   end
 
-        raise 'Unable to find network - check your network_id or network_name' if network.nil?
+        raise "Unable to find network - check your network_id or network_name" if network.nil?
+
         network
       end
 
@@ -247,28 +250,28 @@ module Kitchen
         # We need the name to be 15 chars or less to play nicely
         # with windows, so we're generating a 12-char random
         # string prefixed with "tk-"
-        'tk-' + SecureRandom.hex(6)
+        "tk-" + SecureRandom.hex(6)
       end
 
       def instantiate_config
         {
           vdc_id: vdc.id,
           network_id: network.id,
-          description: node_description
+          description: node_description,
         }
       end
 
       def print_error_and_exit(message)
         error(message)
-        fail message
+        raise message
       end
 
       def validate!
-        %w(vdc catalog image network).each do |param|
+        %w{vdc catalog image network}.each do |param|
           validate_parameter_pair!(param)
         end
 
-        [ :org, :vdc, :catalog, :image, :network].each do |method|
+        %i{org vdc catalog image network}.each do |method|
           validate_method!(method)
         end
 
@@ -277,8 +280,8 @@ module Kitchen
       end
 
       def validate_parameter_pair!(param)
-        id_key   = param + '_id'
-        name_key = param + '_name'
+        id_key   = param + "_id"
+        name_key = param + "_name"
 
         print_error_and_exit("No #{param} found. You must specify #{id_key} or #{name_key}.") if
           config[id_key.to_sym].nil? && config[name_key.to_sym].nil?
@@ -293,7 +296,7 @@ module Kitchen
       def validate_computer_name!
         # regex proudly modified after stealing from:
         # http://stackoverflow.com/questions/2063213/regular-expression-for-validating-dns-label-host-name
-        print_error_and_exit('Node name is not valid - must be 15 characters or less, and be a valid Windows node name') unless
+        print_error_and_exit("Node name is not valid - must be 15 characters or less, and be a valid Windows node name") unless
           node_name =~ /^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{,15}(?<!-)$/
       end
 
@@ -319,12 +322,12 @@ module Kitchen
       def validate_vapp
         vms = vapp.vms
         if vms.empty?
-          error('vApp created, but did not contain any VMs')
+          error("vApp created, but did not contain any VMs")
           return false
         end
 
         if vms.size > 1
-          error('vApp created, but contained more than one VM')
+          error("vApp created, but contained more than one VM")
           return false
         end
 

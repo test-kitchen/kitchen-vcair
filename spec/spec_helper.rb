@@ -1,4 +1,3 @@
-# Encoding: UTF-8
 #
 # Authors:: Chef Partner Engineering (<partnereng@chef.io>)
 # Copyright:: Copyright (c) 2015 Chef Software, Inc.
@@ -15,3 +14,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+require "rake"
+require "rspec"
+require "logger"
+require "stringio" unless defined?(StringIO)
+require "kitchen"
+
+require_relative "../lib/kitchen/driver/vcair"
+RSpec.configure do |config|
+  config.run_all_when_everything_filtered = true
+  config.filter_run(:focus)
+  config.order = "random"
+end

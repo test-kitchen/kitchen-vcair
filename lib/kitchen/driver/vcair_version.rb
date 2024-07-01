@@ -1,4 +1,3 @@
-# Encoding: UTF-8
 #
 # Authors:: Chris McClimans (<c@vulk.co>)
 # Authors:: Taylor Carpenter (<t@vulk.co>)
@@ -20,6 +19,6 @@
 
 module Kitchen
   module Driver
-    VCAIR_VERSION = '1.1.0'.freeze
+    VCAIR_VERSION = "1.1.0".freeze
   end
 end
