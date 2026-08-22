@@ -1,4 +1,4 @@
-source 'https://rubygems.org'
+source "https://rubygems.org"
 
 # Specify your gem's dependencies in kitchen-rackspace.gemspec
 gemspec development_group: :test
