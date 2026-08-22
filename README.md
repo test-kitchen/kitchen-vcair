@@ -2,64 +2,213 @@
 
 [![Gem Version](https://badge.fury.io/rb/kitchen-vcair.svg)](https://badge.fury.io/rb/kitchen-vcair)
 
-A driver to allow Test Kitchen to consume vCloud Air resources to perform testing.
+A [Test Kitchen](https://kitchen.ci/) driver that creates and destroys VMware vCloud Air virtual machines, so you can test your cookbooks and infrastructure code against them.
+
+> **Note:** VMware's vCloud Air service has been discontinued. This driver is
+> useful only against a vCloud Director based deployment that still exposes the
+> vCloud Air API, such as an environment migrated to another provider. If you
+> are choosing a driver for a new project, this is probably not the one you
+> want.
+
+<!-- -->
+
+> This documentation uses [Cinc Workstation](https://cinc.sh/) and the `cinc` commands throughout. Everything here works identically with Chef Workstation — see [Using with Chef](#using-with-chef).
+
+## Requirements
+
+- Ruby 3.1 or later (already satisfied if you use Cinc Workstation)
+- Access to a vCloud Air or vCloud Director deployment
+- An account with permission to instantiate and delete vApps
+- Network access from the machine running Test Kitchen to the network your test
+  VMs are deployed on — see [NAT and public IPs](#nat-and-public-ips)
 
 ## Installation
 
-Add this line to your application's Gemfile:
+This driver ships as part of [Cinc Workstation](https://cinc.sh/start/workstation/). If you have Cinc Workstation installed, there is nothing else to install.
+
+To install it into a standalone Ruby:
+
+```sh
+gem install kitchen-vcair
+```
+
+Or with Bundler, add it to your `Gemfile`:
 
 ```ruby
-gem 'kitchen-vcair'
+gem "kitchen-vcair"
 ```
 
-And then execute:
+...then run `bundle install`.
 
-`bundle`
-
-Or install it yourself as:
-
-`gem install kitchen-vcair`
-
-Or even better, install it via ChefDK:
-
-`chef gem install kitchen-vcair`
-
-## Usage
-
-After installing the gem as described above, edit your .kitchen.yml file to set the driver to 'vcair' and supply your login credentials:
+## Quick Start
 
 ```yaml
+---
 driver:
   name: vcair
   vcair_username: user@domain.com
-  vcair_password: MyS33kretPassword
+  vcair_password: <%= ENV['VCAIR_PASSWORD'] %>
   vcair_api_host: some-host.vchs.vmware.com
   vcair_org: M12345678-4321
+  vdc_name: MyCompany VDC 1
+  network_name: vdc1-default-routed
+  catalog_name: Public Catalog
+  image_name: CentOS64-64BIT
+  vm_password: <%= ENV['VCAIR_VM_PASSWORD'] %>
+
+provisioner:
+  name: cinc_infra
+
+verifier:
+  name: cinc_auditor
+
+transport:
+  password: <%= ENV['VCAIR_VM_PASSWORD'] %>
+
+platforms:
+  - name: centos
+
+suites:
+  - name: default
+    run_list:
+      - recipe[my_cookbook::default]
 ```
 
-Additionally, the following parameters are required:
+Then run the full test cycle:
 
- * **vdc_id** or **vdc_name**: The ID or name of the vDC in which to create your vApp/VM.
- * **catalog_id** or **catalog_name**: The ID or name of the catalog that contains your image/template.
- * **image_id** or **image_name**: The ID or name of the image you wish to use to create your VM.
- * **network_id** or **network_name**: The ID or name of the network to which to attach to your VM.
+```sh
+cinc kitchen test
+```
 
-There are a number of optional parameters you can configure as well:
+Or step through it:
 
- * **cpus**: The number of vCPUs to configure for your VM. Default: 1
- * **memory**: The amount of RAM, in MB, to configure for your VM. Default: 1024
- * **vcair_api_path**: The URI path for the compute API. This needs to be set when using vCloud Air OnDemand. Default: /api
- * **vm_password**: The password to set via VM customization for the root/administrator user.
-   * Be sure to set the same password in your `transport` section, too!
-   * NOTE: see the *known issues* section below regarding Windows and passwords.
+```sh
+cinc kitchen create    # instantiate the vApp and power it on
+cinc kitchen converge  # apply your cookbook
+cinc kitchen verify    # run your tests
+cinc kitchen destroy   # delete the vApp
+```
 
-All of the above settings can be set globally (in the top-level `driver` section), or can be set individually for each platform. For example, you may wish to set your vDC and network globally, but set your catalog and image for each individual platform, and increase the vCPUs/RAM assigned to your windows node:
+Note that `vm_password` and the transport's `password` must match. See
+[SSH authentication](#ssh-authentication) for why.
+
+## Configuration
+
+All options can be set globally under the top-level `driver:` key, or per platform under `platforms[].driver:`. A common split is to set the vDC and network globally and the catalog, image, and sizing per platform.
+
+### Credentials
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `vcair_username` | *none* | Username to authenticate with, e.g. `user@domain.com`. Required. |
+| `vcair_password` | *none* | Password to authenticate with. Required. |
+| `vcair_api_host` | *none* | API hostname, e.g. `some-host.vchs.vmware.com`. Required. |
+| `vcair_org` | *none* | Organization ID, e.g. `M12345678-4321`. Required. |
+| `vcair_api_path` | `"/api"` | URI path for the compute API. Must be `/api/compute/api` on vCloud Air OnDemand. |
+| `vcair_api_version` | *library default* | vCloud Director API version to request. |
+
+### Placement
+
+Each of these pairs takes either an ID or a name. One of each pair is required.
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `vdc_id` / `vdc_name` | *none* | The vDC to create the vApp in. Required. |
+| `catalog_id` / `catalog_name` | *none* | The catalog holding your image or template. Required. |
+| `image_id` / `image_name` | *none* | The image to create the VM from. Required. |
+| `network_id` / `network_name` | *none* | The network to attach the VM to. Required. |
+
+### Machine
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `cpus` | `1` | Number of vCPUs. |
+| `memory` | `1024` | RAM in MB. |
+| `node_name` | generated, `tk-<random>` | Name of the VM. Must be 15 characters or fewer, contain only letters, digits and hyphens, not start or end with a hyphen, and not be all digits — the constraints Windows imposes on a computer name. |
+| `node_description` | `Test Kitchen: <node_name>` | Description recorded on the vApp. |
+
+### Guest customization
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `vm_password` | *unset* | Password set for the root or Administrator user through guest customization. Must match the transport's `password`. |
+| `customization_script` | *unset* | Path to a guest customization script. Must exist and be readable, or the run fails immediately. Required for Windows — see [WinRM](#winrm). |
+
+### Timing
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `wait_for` | `600` | Seconds to wait for the VM to become ready before timing out. |
+
+## Subscription vs. OnDemand
+
+The driver works as-is against vCloud Air Subscription. OnDemand exposes the
+compute API at a different path, so set:
+
+```yaml
+driver:
+  vcair_api_path: /api/compute/api
+```
+
+Many of the VMware-provided public catalog images are missing core
+configuration, such as working DNS resolvers. Building your own images from
+them, with proper configuration, is strongly recommended.
+
+## SSH authentication
+
+vCloud Air does not deploy SSH keys to new VMs the way other cloud providers do,
+so many public catalog images support password authentication only.
+
+Set the password through guest customization and give the transport the same
+value:
+
+```yaml
+driver:
+  vm_password: <%= ENV['VCAIR_VM_PASSWORD'] %>
+
+transport:
+  password: <%= ENV['VCAIR_VM_PASSWORD'] %>
+```
+
+Using the password vCloud Air generates itself is **not supported**: a bug in
+Fog prevents the driver from retrieving it.
+
+## WinRM
+
+Windows instances need more setup than Linux ones.
+
+Most public catalog Windows images do not have WinRM enabled, so you must supply
+a customization script that enables it. A working example is in the
+[`examples/`](examples/) directory as `windows_customization.bat`.
+
+The customization mechanism that sets a password on Linux does not work on
+Windows, and Windows does not honour the customization setting that disables the
+forced password change at first login. The customization script therefore has to
+set the Administrator password as well, which the bundled example does.
+
+Expect Windows instances to take a long time to become ready — several reboots
+are required before Test Kitchen can connect. Publishing your own image with
+WinRM already enabled and configured avoids most of this.
+
+## NAT and public IPs
+
+vCloud Air does not treat public IPs as objects that attach to VMs. They attach
+to network objects called gateways, which then need NAT and firewall rules, and
+the Fog library cannot create those.
+
+As a result **only routed networks are supported**, and Test Kitchen must be run
+from a machine on a network inside vCloud Air with access to the network your
+test VMs are deployed on.
+
+## Examples
+
+### Global settings with per-platform images
 
 ```yaml
 driver:
   name: vcair
   vcair_username: user@domain.com
-  vcair_password: MyS33kretPassword
+  vcair_password: <%= ENV['VCAIR_PASSWORD'] %>
   vcair_api_host: some-host.vchs.vmware.com
   vcair_org: M12345678-4321
   vdc_name: MyCompany VDC 1
@@ -76,115 +225,76 @@ platforms:
       image_name: W2K12-STD-R2-64BIT
       cpus: 2
       memory: 4096
+      customization_script: examples/windows_customization.bat
 ```
 
-### vCloud Air Subscription vs. OnDemand
-
-kitchen-vcair works as-is with vCloud Air Subscription. In vCloud Air OnDemand,
-the API path is different. To use this plugin with vCloud Air OnDemand, you
-will need to set the `vcair_api_path` configuration parameter to `/api/compute/api`:
+### vCloud Air OnDemand
 
 ```yaml
 driver:
+  name: vcair
+  vcair_api_host: some-host.vchs.vmware.com
   vcair_api_path: /api/compute/api
+  vcair_org: M12345678-4321
+  vcair_username: user@domain.com
+  vcair_password: <%= ENV['VCAIR_PASSWORD'] %>
 ```
 
-Also, in our testing, we found many of the VMware-provided images are missing
-core configurations, such as properly-configured DNS resolvers. We strongly
-recommend building your own images off the VMware-provided images with proper
-configurations.
-
-## Known Issues and Workarounds
-
-### SSH Authentication - passwords vs. public-key
-
-vCloud Air does not natively support deploying SSH keys to new VMs like other
-cloud providers. Therefore, many of the images in the vCloud Air public catalog
-only support password authentication.
-
-#### Setting your own password
-
-Through VM customization, vCloud Air allows you to specify a password that should
-be set for the root account.  You can use the `vm_password` config parameter to
-specify that password:
+### Naming the VM explicitly
 
 ```yaml
 driver:
-  vm_password: mysupersecretpassword
+  name: vcair
+  node_name: tk-web01
+  node_description: Test Kitchen web server suite
 ```
 
-... and then tell the transport to use that same password:
+### A slow environment
 
 ```yaml
-transport:
-  password: mysupersecretpassword
+driver:
+  name: vcair
+  wait_for: 1800
 ```
 
-#### Using the pre-generated password by vCloud Air
+## Troubleshooting
 
-**This is not supported.** Unfortunately, a bug in Fog prevents us from
-retrieving that password, and a issue/PR will be logged to address this.
+**"Node name is not valid."** `node_name` must be 15 characters or fewer, use
+only letters, digits and hyphens, not begin or end with a hyphen, and not be
+entirely digits. Those are Windows computer name rules, and the driver applies
+them to every platform.
 
-### WinRM Authentication
+**"Customization script ... is not found or not readable."** The path in
+`customization_script` is resolved from where you run Test Kitchen. Check the
+path and the file's permissions.
 
-#### Setup
+**Test Kitchen cannot connect over SSH.** Confirm `vm_password` and the
+transport's `password` are the same value, and that your machine can reach the
+test network directly — see [NAT and public IPs](#nat-and-public-ips).
 
-Many of the images in the vCloud Air public catalog do not have WinRM enabled.
-You will need to provide a customization script to enable WinRM.  An example
-can be found in the `examples/` directory in this repo.  Note that multiple
-reboots are required for the VM to become ready for Test Kitchen to use, so
-the time required for a Windows VM to be ready is fairly long.
+**A Windows instance never becomes ready.** Confirm the customization script
+enables WinRM, and raise `wait_for`; several reboots are expected.
 
-A potential workaround to this would be to create your own VM with WinRM enabled
-and configured properly and publish it in your own catalog.
+## Using with Chef
 
-#### Setting your own password
+This driver is not tied to Cinc. The examples above use Cinc Workstation and the `cinc_infra` provisioner, but the driver works exactly the same with [Chef Workstation](https://www.chef.io/downloads/tools/workstation) — run `kitchen` instead of `cinc kitchen`, and use `chef_infra` instead of `cinc_infra`:
 
-The same customization function that works for Linux does not appear to work for
-Windows in vCloud Air. Additionally, Windows does not appear to honor the
-customization setting that disables the forced password change on first login.
+```yaml
+provisioner:
+  name: chef_infra
 
-Therefore, a customization script will need to be used to set your Administrator
-password. See the `examples/` directory for a sample customization script that
-enables WinRM and sets the Administrator password.
+verifier:
+  name: inspec
+```
 
-### NAT and Public IP Support
-
-Unlike other cloud providers, vCloud Air does not treat public IPs as objects
-that can be associated with VMs. Instead, those IPs are associated with network
-objects called "gateways" which then require NAT and firewall rules to be
-created.  The Fog library does not support the creation of those objects.
-
-Therefore, only routed networks are supported, and it is required that Test
-Kitchen be executed on a network within vCloud Air that has access to the
-destination network on which your test VMs will be deployed.
-
-## License and Authors
-
-Author:: Chef Partner Engineering (<partnereng@chef.io>)
-
-Copyright:: Copyright (c) 2015 Chef Software, Inc.
-
-License:: Apache License, Version 2.0
-
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License. You may obtain a copy of the License at
-
-<http://www.apache.org/licenses/LICENSE-2.0>
-
-Unless required by applicable law or agreed to in writing, software distributed under the
-License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-either express or implied. See the License for the specific language governing permissions
-and limitations under the License.
+No driver configuration changes are needed.
 
 ## Contributing
 
-We'd love to hear from you if this doesn't perform in the manner you expect. Please log a GitHub issue, or even better, submit a Pull Request with a fix!
+We'd love to hear from you if this doesn't perform the way you expect. Bug reports and pull requests are welcome on [GitHub](https://github.com/test-kitchen/kitchen-vcair). See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, how to run the tests, and the release process.
 
-1. Fork it (<https://github.com/chef-partners/kitchen-vcair/fork>)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+## License and Authors
 
+Author: Chef Partner Engineering (<partnereng@chef.io>)
 
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
