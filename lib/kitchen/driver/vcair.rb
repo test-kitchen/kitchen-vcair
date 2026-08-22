@@ -180,12 +180,12 @@ module Kitchen
       def fog_server_def
         {
           provider: "vclouddirector",
-          vcloud_director_username:      vcloud_username,
-          vcloud_director_password:      config[:vcair_password],
-          vcloud_director_host:          config[:vcair_api_host],
-          vcloud_director_api_version:   config[:vcair_api_version],
+          vcloud_director_username: vcloud_username,
+          vcloud_director_password: config[:vcair_password],
+          vcloud_director_host: config[:vcair_api_host],
+          vcloud_director_api_version: config[:vcair_api_version],
           vcloud_director_show_progress: false,
-          path:                          config[:vcair_api_path],
+          path: config[:vcair_api_path],
         }
       end
 
