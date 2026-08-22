@@ -1,5 +1,7 @@
 # kitchen-vcair
 
+[![Gem Version](https://badge.fury.io/rb/kitchen-vcair.svg)](https://badge.fury.io/rb/kitchen-vcair)
+
 A driver to allow Test Kitchen to consume vCloud Air resources to perform testing.
 
 ## Installation

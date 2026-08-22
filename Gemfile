@@ -1,8 +1,7 @@
-source 'https://rubygems.org'
+source "https://rubygems.org"
 
 # Specify your gem's dependencies in kitchen-rackspace.gemspec
-gemspec
-
+gemspec development_group: :test
 group :test do
   gem "rake"
   gem "kitchen-inspec"
@@ -11,10 +10,6 @@ end
 
 group :debug do
   gem "pry"
-end
-
-group :chefstyle do
-  gem "chefstyle", "2.2.3"
 end
 
 group :cookstyle do
